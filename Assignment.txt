@@ -1,6 +1,6 @@
-BMI-203 Winter 2016
+BMI-203 Winter 2018
 Homework 3
-Due: 11:59pm February 29th, 2016
+Due: 11:59pm February 23th, 2018
 
 Answers should be submitted electronically via email to: seth.axen@gmail.com
 
@@ -63,7 +63,7 @@ from which to optimize a scoring matrix to maximize separation of
 scores of the positive and negative pairs.
 
 1. Devise an optimization algorithm to modify the values in a starting
-   score matrix such as to maximize the following obective function:
+   score matrix such as to maximize the following objective function:
    sum of TP rates for FP rates of 0.0, 0.1, 0.2, and 0.3. The maximum
    value for the objective function is 4.0 (where you are getting
    perfect separation of positive and negative pairs even at the
