@@ -2,6 +2,7 @@ import os, sys, subprocess
 import numpy as np, matplotlib.pyplot as plt
 from skbio import Protein
 from skbio.alignment import local_pairwise_align_protein
+from sklearn import metrics
 from numba import jit
 
 
@@ -47,10 +48,10 @@ def align(seq1, seq2, go, ge):
 	a, b = read_seq(seq1, seq2)
 	# scoreMatrix = read_matrix(sys.argv[1])
 	alignment, score, start_end_positions = local_pairwise_align_protein(Protein(a, lowercase = True), Protein(b, lowercase = True), gap_open_penalty=go, gap_extend_penalty=ge, substitution_matrix=None)
-	print ("\nScore:", score)
+	# print ("\nScore:", score)
 	return score
 
-# @jit
+@jit
 def main():
 	''' Run alignment with different gap penalties to find best ones. '''
 
@@ -58,6 +59,7 @@ def main():
 	folder = pwd + "/sequences/"
 	l = subprocess.check_output(["ls", "%s" % folder], universal_newlines=True).split()
 	results = np.zeros((len(l), len(l)))
+	normres = np.zeros((len(l), len(l)))
 	# temp = np.zeros((21, 6))
 
 	mini_list = l[0:19]
@@ -67,18 +69,15 @@ def main():
 		for z in range(1,6):
 			ge = z
 			print (go, ge)
-			# Run alignment for all sequences.
-			# for i, fa in enumerate(l):
-			# 	for j in range(len(l)):
-			# 		print (fa, l[j])
-			# 		results[i][j] = align(folder + fa, folder + l[j], go, ge)
-			# print(results)
-
+			# Run alignment for all sequences. Change mini_list to l for full dataset
 			for i, fa in enumerate(mini_list):
 				for j in range(len(mini_list)):
-					print (fa, mini_list[j])
+			# 		print (fa, mini_list[j])
 					results[i][j] = align(folder + fa, folder + mini_list[j], go, ge)
-			print(results, np.matrix.sum(results))
+			maxres = np.ndarray.max(results)
+			for index, r in np.ndenumerate(results):
+				normres[index] = r / maxres
+			print(results, normres)
 			
 			# temp[y][z] = align(a, b, go, ge)
 
