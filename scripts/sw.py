@@ -14,6 +14,7 @@ def read_seq(f_a):
 		next(f1) 
 		seq1 = ''.join(line.strip() for line in f1)
 		seq1=seq1.strip()
+		print (seq1[0:5])
 		f1.close()
 	return seq1
 
@@ -67,27 +68,6 @@ def import_pairs():
 	# Return pairs as single lists
 	return seq1_negpairs, seq2_negpairs, seq1_pospairs, seq2_pospairs
 
-	#Load pairs
-#     neg_seq1_seq = []
-#     neg_seq1_name = []
-#     neg_seq2_seq = []
-#     neg_seq2_name = []
-#     pos_seq1_seq = []
-#     pos_seq1_name = []
-#     pos_seq2_seq = []
-#     pos_seq2_name = []
-
-#     for file_num in range(len(seq1_negpairs)):
-#         neg_seq1_seq.append(read_seq(seq1_negpairs[file_num]))
-#         neg_seq2_seq.append(read_seq(seq2_negpairs[file_num]))
-#         neg_seq1_name.append(seq1_negpairs[file_num])
-#         neg_seq2_name.append(seq2_negpairs[file_num])
-
-#     for file_num in range(len(seq1_pospairs)):
-#         pos_seq1_seq.append(read_seq(seq1_pospairs[file_num]))
-#         pos_seq2_seq.append(read_seq(seq2_pospairs[file_num]))
-#         pos_seq1_name.append(seq1_pospairs[file_num])
-#         pos_seq2_name.append(seq2_pospairs[file_num])
 
 @jit
 def new_align(seq1, seq2, go, ge, scoreMatrix):
@@ -97,6 +77,7 @@ def new_align(seq1, seq2, go, ge, scoreMatrix):
 	print ("\nScore:", score)
 	return score
 
+
 @jit
 def optimize_gap_penalties(list_a, list_b):
 	''' Run alignment with different gap penalties to find best ones. '''
@@ -104,24 +85,23 @@ def optimize_gap_penalties(list_a, list_b):
 	print ("Running gap penalty optimization.\n")
 	# folder = pwd + "/" + sys.argv[1]
 	results = np.zeros((len(list_a), len(list_b)))
-	normres = np.zeros((len(list_a), len(list_b)))
-	i = j = 0
+	# # normres = np.zeros((len(list_a), len(list_b)))
+	# i = j = 0
 	for y in range(1,21):
 		go = y
 		for z in range(1,6):
 			ge = z
 			print (go, ge)
 			# Run alignment for given sequences
-			for a in list_a:
-				for b in list_b:
-					print (a, b)
-					results[i][j] = new_align(sys.argv[1] + a, sys.argv[1] + b, go, ge, read_matrix(sys.argv[2]))
-					i += 1
-					j += 1
-			maxres = np.ndarray.max(results)
-			for index, r in np.ndenumerate(results):
-				normres[index] = r / maxres
-			print(normres)
+			smatrix = read_matrix(sys.argv[2])
+			for i in range(list_a):
+				print (list_a[i], list_b[i])
+				results[y-1][z-1] = new_align(list_a[i], list_b[i], go, ge, smatrix)
+			# maxres = np.ndarray.max(results)
+			# for index, r in np.ndenumerate(results):
+				# normres[index] = r / maxres
+			# print(normres)
+	return results
 
 	
 def temporary():
@@ -133,4 +113,3 @@ def temporary():
 	return l, newl
 
 
-''' skbio.alignment.local_pairwise_align_protein(seq1, seq2, gap_open_penalty=11, gap_extend_penalty=1, substitution_matrix=None) '''
