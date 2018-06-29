@@ -1,0 +1,12 @@
+Running main alignment function using data from testseq/
+1 1
+prot-0004.fa prot-0004.fa
+
+Score: 937
+prot-0004.fa prot-0008.fa
+
+Score: 254
+prot-0004.fa prot-0014.fa
+
+Score: 79
+prot-0004.fa prot-0018.fa
