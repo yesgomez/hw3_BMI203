@@ -20,7 +20,7 @@ def test_makeroc():
 	# Can it output an ROC curve using provided scores and scoring matrix?
 	negpairlist_filename, pospairlist_filename, negpairs1, negpairs2, pospairs1, pospairs2, names, options = init_files(pwd, directory)	
 	fpr, pos_align_score, neg_align_score = single_scoring(options[0], 4, 3, pospairs1, pospairs2, negpairs1, negpairs2)
-	make_roc_curve(pos_align_score, neg_align_score, each, names[i])
+	make_roc_curve(pos_align_score, neg_align_score, each, names[0])
 	print ("ROC curve test passed.\n")
 
 # def odd_even():
