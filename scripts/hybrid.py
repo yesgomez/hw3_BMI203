@@ -207,45 +207,44 @@ def all_score_mats(options, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2,
 
 
 def single_scoring(choice, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2):
-		pos_align_score = []
-		neg_align_score = []
-		for i in range(0,len(pospairs1)):
-			mat_score_p,mat_state_p, score_p, state_p = align(pospairs1[i],pospairs2[i], -ga, -ext, choice)
-			mat_score_n,mat_state_n, score_n, state_n = align(negpairs1[i],negpairs2[i], -ga, -ext, choice)
-			pos_align_score.append(score_p)
-			neg_align_score.append(score_n)
-		pos_align_score.sort()
-		neg_align_score.sort()
-		tpr = 0.7 
-		cutoff_index = int((1-tpr)*len(pos_align_score))# find the index that makes it so tpr*lenscores is > threshold
-		threshold = pos_align_score[cutoff_index]
-		neg_score_np = np.array(neg_align_score)
-		fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) #False Positive Rate
-		return fpr, pos_align_score, neg_align_score
+	pos_align_score = []
+	neg_align_score = []
+	for i in range(0,len(pospairs1)):
+		mat_score_p,mat_state_p, score_p, state_p = align(pospairs1[i],pospairs2[i], -ga, -ext, choice)
+		mat_score_n,mat_state_n, score_n, state_n = align(negpairs1[i],negpairs2[i], -ga, -ext, choice)
+		pos_align_score.append(score_p)
+		neg_align_score.append(score_n)
+	pos_align_score.sort()
+	neg_align_score.sort()
+	tpr = 0.7 
+	cutoff_index = int((1-tpr)*len(pos_align_score))# find the index that makes it so tpr*lenscores is > threshold
+	threshold = pos_align_score[cutoff_index]
+	neg_score_np = np.array(neg_align_score)
+	fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) #False Positive Rate
+	return fpr, pos_align_score, neg_align_score
 
 
 def make_roc_curve(pos_scores, neg_scores, matrix, matname):
-    #Create a label array, y, with 1's for positives and 0's for negatives, and a scoring array for each labeled pair.
-    y = np.array([1]*len(pos_scores)+[0]*len(neg_scores))
-    scores = np.array(pos_scores + neg_scores)
+	# Create a label array, y, with 1's for positives and 0's for negatives, and a scoring array for each labeled pair.
+	y = np.array([1]*len(pos_scores)+[0]*len(neg_scores))
+	scores = np.array(pos_scores + neg_scores)
+	# Using scikit-learn, calculate the necessary ROC parameters, and use them to compute the area under the curve
+	fpr,tpr,thresholds = roc_curve(y,scores)
+	roc_auc = auc(fpr, tpr)
 
-    #Using scikit-learn, calculate the parameters necessary for an ROC curve, and use them to compute the area under the curve
-    fpr,tpr,thresholds = roc_curve(y,scores)
-    roc_auc = auc(fpr, tpr)
-
-    #plot and save an ROC curve.
-    plt.figure()
-    plt.title('Receiver Operating Characteristic, %s' %matname)
-    plt.plot(fpr,tpr, 'b', label='AUC = %0.2f'% roc_auc)
-    plt.legend(loc='lower right')
-    plt.plot([0,1],[0,1],'r--')
-    plt.xlim([0,1])
-    plt.ylim([0,1])
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Positive Rate')
-    plt.savefig('roc_%s.png' %matname)
-
-    return
+	# Plot and save an ROC curve.
+	plt.figure()
+	plt.title('Receiver Operating Characteristic, %s' %matname)
+	plt.plot(fpr,tpr, 'b', label='AUC = %0.2f'% roc_auc)
+	plt.legend(loc='lower right')
+	plt.plot([0,1],[0,1],'r--')
+	plt.xlim([0,1])
+	plt.ylim([0,1])
+	plt.ylabel('True Positive Rate')
+	plt.xlabel('False Positive Rate')
+	plt.savefig('roc_%s.png' %matname)
+	print ("roc_%s.png saved to current directory.\n"%matname)
+	return
 
 
 def init_files(pwd, directory):
@@ -261,8 +260,3 @@ def init_files(pwd, directory):
 	if len(options) == len(names):
 		print ("All imports succesful!")
 	return negpairlist_filename, pospairlist_filename, negpairs1, negpairs2, pospairs1, pospairs2, names, options
-
-
-# init_files()
-# gap, extension = penalty_optimize()
-# all_score_mats(options, 4, 3)

@@ -9,15 +9,15 @@ directory = pwd + "/" + sys.argv[1]
 # Import positive and negative pairs, and scoring matrices
 negpairlist_filename, pospairlist_filename, negpairs1, negpairs2, pospairs1, pospairs2, names, options = init_files(pwd, directory)
 
-# Run optimization using BLOSUM50 and pair lists
+# Run optimization using BLOSUM50 and +/- pair lists
 # gap, extension = optimize_gap_penalties(options[0], pospairs1, pospairs2, negpairs1, negpairs2)
-# all_score_mats(options, gap, extension, pospairs1, pospairs2, negpairs1, negpairs2)
 
-# all_score_mats(options, 4, 3, pospairs1, pospairs2, negpairs1, negpairs2, names) # hardcoded penalties for testing
-fpr, pos_align_score, neg_align_score = single_scoring(options[0], 4, 3, pospairs1, pospairs2, negpairs1, negpairs2)
+# Find best scoring matrix by false positive rate
+# all_score_mats(options, gap, extension, pospairs1, pospairs2, negpairs1, negpairs2)
+## all_score_mats(options, 4, 3, pospairs1, pospairs2, negpairs1, negpairs2, names) # hardcoded penalties for testing
 
 # Normalize best results by seq length
-make_roc_curve(pos_align_score,neg_align_score,options[0], names[0])
-	# For best resulting matrix
-	# Return all val as matrix and all lengths as matrix, then divide element-wise
-	# Voila - new matrix!
+for i, each in enumerate(options):
+	## fpr, pos_align_score, neg_align_score = single_scoring(each, gap, extension, pospairs1, pospairs2, negpairs1, negpairs2)
+	fpr, pos_align_score, neg_align_score = single_scoring(each, 4, 3, pospairs1, pospairs2, negpairs1, negpairs2)
+	make_roc_curve(pos_align_score, neg_align_score, each, names[i])
