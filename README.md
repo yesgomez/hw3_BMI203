@@ -1,7 +1,7 @@
 # hw3_BMI203
 
 [![Build
-Status](https://travis-ci.org/ygomez/hw3BMI203.svg?branch=redo)](https://travis-ci.org/yesgomez/hw2-skeleton)
+Status](https://travis-ci.org/yesgomez/hw3_BMI203)](https://github.com/yesgomez/hw3_BMI203/tree/redo)
 
 Skeleton for clustering project.
 

@@ -22,9 +22,3 @@ def test_makeroc():
 	print ("ROC curve test passed.\n")
 
 def odd_even():
-	# generate random vector containing 99 elements
-	x = np.random.rand(1, 99)
-	algs.main(x)
-	# generate random vector containing 999 elements
-	x = np.random.rand(1, 999)
-	algs.main(x)
