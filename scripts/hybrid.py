@@ -56,11 +56,8 @@ def read_matrix(filepath):
 
 
 def align(seq1, seq2, open_penalty, extend_penalty, substitution_matrix):
-	'''
-	Given two sequences to align substitution matrix, gap open penalty and extend penalty, output the alignment score matrix.
-
-	'''
-	# Initialization of empty score matrix and state state matrix 
+	# Given two sequences, substitution matrix, gap open and extend penalty, output the alignment score matrix.
+	# Initialization of empty score matrix and state matrix 
 	mat_score = [[None]*len(seq2) for _ in range(0,len(seq1))]
 	mat_state = [[None]*(len(seq2)+1) for _ in range(0,len(seq1)+1)]
 	mat_score.insert(0,[0] * len(seq2))
@@ -240,6 +237,8 @@ def make_roc_curve(pos_scores, neg_scores, matrix, matname):
 	return
 
 
+def optimization(options[0]):
+	
 def init_files(pwd, directory):
 	negpairlist_filename = pwd + '/Negpairs.txt'
 	pospairlist_filename = pwd + '/Pospairs.txt'
