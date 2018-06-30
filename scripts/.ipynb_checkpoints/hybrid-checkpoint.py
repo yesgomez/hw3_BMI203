@@ -237,7 +237,7 @@ def make_roc_curve(pos_scores, neg_scores, matrix, matname):
 	return
 
 
-def optimization(options[0]):
+# def optimization(options[0]):
 	
 def init_files(pwd, directory):
 	negpairlist_filename = pwd + '/Negpairs.txt'
