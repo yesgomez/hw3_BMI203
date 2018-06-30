@@ -3,7 +3,7 @@ from scripts.hybrid import *
 
 # generic tests for algorithm logic #
 pwd = os.getcwd()
-directory = pwd + "/" + sys.argv[1]
+directory = pwd + "/sequences"
 
 def test_import():
 	# Are the files read in correctly?
