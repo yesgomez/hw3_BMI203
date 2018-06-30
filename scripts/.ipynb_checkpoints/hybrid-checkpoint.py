@@ -55,50 +55,6 @@ def read_matrix(filepath):
 	return df_score
 
 
-def align(seq1, seq2, open_penalty, extend_penalty, substitution_matrix):
-	# Given two sequences, substitution matrix, gap open and extend penalty, output the alignment score matrix.
-	# Initialization of empty score matrix and state matrix 
-	mat_score = [[None]*len(seq2) for _ in range(0,len(seq1))]
-	mat_state = [[None]*(len(seq2)+1) for _ in range(0,len(seq1)+1)]
-	mat_score.insert(0,[0] * len(seq2))
-	for row in mat_score:
-		row.insert(0,0)
-	# Start scoring matrix by first initializing max score as zero     
-	for i in range(1,len(seq1)+1):
-		for j in range(1, len(seq2)+1):        
-			max_score = 0
-			state = ""
-			# Calculate left well deletion score 
-			if mat_state[i][j-1] == "del":
-				score = mat_score[i][j-1] + extend_penalty
-			else:
-				score = mat_score[i][j-1] + open_penalty
-			if score > max_score:
-				max_score = score
-				state = "del"
-			# Calculate up well insertion score 
-			if mat_state[i-1][j] == "ins":
-				score = mat_score[i-1][j] + extend_penalty
-			else:
-				score = mat_score[i-1][j] + open_penalty
-			if score > max_score:
-				max_score = score
-				state = "ins"
-			# Calculate diagonal well alignment score by referring to substitution matrix 
-			aa_i = seq1[i-1]
-			aa_j = seq2[j-1]
-			align_score = substitution_matrix.loc[str(aa_i),str(aa_j)]
-			score = mat_score[i-1][j-1] + align_score
-			if score > max_score:
-				max_score = score
-				state = "align"
-
-			mat_score[i][j] = max_score
-			mat_state[i][j] = state
-
-	return np.asarray(mat_score), np.asanyarray(mat_state), max_score, state
-
-
 def get_negpair_seq(filepath, negpairlist_filename):
 	# Get sequences for negative pairs.	
 	
@@ -155,6 +111,49 @@ def get_pospair_seq(filepath,pospairlist_filename):
 	return pospair_sequences, pospair2_sequences
 
 
+def align(seq1, seq2, open_penalty, extend_penalty, substitution_matrix):
+	# Given two sequences, substitution matrix, gap open and extend penalty, output the alignment score matrix.
+	# Initialization of empty score matrix and state matrix 
+	mat_score = [[None]*len(seq2) for _ in range(0,len(seq1))]
+	mat_state = [[None]*(len(seq2)+1) for _ in range(0,len(seq1)+1)]
+	mat_score.insert(0,[0] * len(seq2))
+	for row in mat_score:
+		row.insert(0,0)
+	# Start scoring matrix by first initializing max score as zero     
+	for i in range(1,len(seq1)+1):
+		for j in range(1, len(seq2)+1):        
+			max_score = 0
+			state = ""
+			# Calculate left well deletion score 
+			if mat_state[i][j-1] == "del":
+				score = mat_score[i][j-1] + extend_penalty
+			else:
+				score = mat_score[i][j-1] + open_penalty
+			if score > max_score:
+				max_score = score
+				state = "del"
+			# Calculate up well insertion score 
+			if mat_state[i-1][j] == "ins":
+				score = mat_score[i-1][j] + extend_penalty
+			else:
+				score = mat_score[i-1][j] + open_penalty
+			if score > max_score:
+				max_score = score
+				state = "ins"
+			# Calculate diagonal well alignment score by referring to substitution matrix 
+			aa_i = seq1[i-1]
+			aa_j = seq2[j-1]
+			align_score = substitution_matrix.loc[str(aa_i),str(aa_j)]
+			score = mat_score[i-1][j-1] + align_score
+			if score > max_score:
+				max_score = score
+				state = "align"
+			mat_score[i][j] = max_score
+			mat_state[i][j] = state
+
+	return np.asarray(mat_score), np.asanyarray(mat_state), max_score, state
+
+
 def optimize_gap_penalties(matrix, pospairs1, pospairs2, negpairs1, negpairs2):
 	possible_gap_extend_penalties = list(range(1,6))
 	possible_gap_open_penalties = list(range(1,21))
@@ -195,6 +194,7 @@ def single_scoring(choice, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2):
 	for i in range(0,len(pospairs1)):
 		mat_score_p,mat_state_p, score_p, state_p = align(pospairs1[i],pospairs2[i], -ga, -ext, choice)
 		mat_score_n,mat_state_n, score_n, state_n = align(negpairs1[i],negpairs2[i], -ga, -ext, choice)
+		print (state_p, state_n)
 		pos_align_score.append(score_p)
 		neg_align_score.append(score_n)
 	pos_align_score.sort()
