@@ -77,25 +77,23 @@ def align(seq1, seq2, open_penalty, extend_penalty, substitution_matrix):
 		for j in range(1, len(seq2)+1):        
 			max_score = 0
 			state = ""
-	# Calculate left well deletion score by determining whether it is gap open or extension 
+			# Calculate left well deletion score by determining whether it is gap open or extension 
 			if mat_state[i][j-1] == "del":
 				score = mat_score[i][j-1] + extend_penalty
 			else:
 				score = mat_score[i][j-1] + open_penalty
-
 			if score > max_score:
 				max_score = score
 				state = "del"
-	# Calculate up well insertion score by determining whether it is gap open or extension         
+			# Calculate up well insertion score by determining whether it is gap open or extension         
 			if mat_state[i-1][j] == "ins":
 				score = mat_score[i-1][j] + extend_penalty
 			else:
 				score = mat_score[i-1][j] + open_penalty
-
 			if score > max_score:
 				max_score = score
 				state = "ins"
-	# Calculate diagonal well alignment score by reffering to substitution matrix 
+			# Calculate diagonal well alignment score by reffering to substitution matrix 
 			aa_i = seq1[i-1]
 			aa_j = seq2[j-1]
 			align_score = substitution_matrix.loc[str(aa_i),str(aa_j)]
@@ -142,7 +140,7 @@ def get_negpair_seq(filepath, negpairlist_filename):
 	negpair2_sequences = without_x
 	
 	print("Read in %d negative pair fasta files" %len(negpair_sequences))
-	print("Read in %d negative pair fasta files" %len(negpair2_sequences))
+	# print("Read in %d negative pair fasta files" %len(negpair2_sequences))
 	return negpair_sequences, negpair2_sequences
 
 def get_pospair_seq(filepath,pospairlist_filename):
@@ -170,7 +168,7 @@ def get_pospair_seq(filepath,pospairlist_filename):
 			for name, pos2_seq in read_fasta(pos):
 				pospair2_sequences.append(pos2_seq)    
 	print("Read in %d positive pair fasta files" %len(pospair_sequences))
-	print("Read in %d positive pair fasta files" %len(pospair2_sequences))
+	# print("Read in %d positive pair fasta files" %len(pospair2_sequences))
 	return pospair_sequences, pospair2_sequences
 
 
@@ -184,27 +182,11 @@ def optimize_gap_penalties(matrix, pospairs1, pospairs2, negpairs1, negpairs2):
 	for open_penalty in possible_gap_open_penalties: 
 		for extend_penalty in possible_gap_extend_penalties:
 			print ("At open penalty score " + str(open_penalty) + " and extend penalty "+ str(extend_penalty))
-			pos_align_score = []
-			neg_align_score = []
-			for i in range(0,len(pospairs1)):
-				mat_score_p,mat_state_p, score_p, state_p = align(pospairs1[i],pospairs2[i], -open_penalty,-extend_penalty, matrix)
-				print ("In " + str(i) + " Pospair: score_p is " + str(score_p))
-				mat_score_n,mat_state_n, score_n, state_n = align(negpairs1[i],negpairs2[i], -open_penalty,-extend_penalty, matrix)
-				print ("In " + str(i) + " Negpair: score_n is " + str(score_n))
-				pos_align_score.append(score_p)
-				neg_align_score.append(score_n)
-			pos_align_score.sort()
-			neg_align_score.sort()
-			tpr = 0.7 #tpr = #>thresh / total scores
-			cutoff_index = int((1-tpr)*len(pos_align_score))# find the index that makes it so tpr*lenscores is > threshold
-			threshold = pos_align_score[cutoff_index]
-			neg_score_np = np.array(neg_align_score)
-			fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) #False Positive Rate
+			fpr, pos_align_score, neg_align_score = single_scoring(matrix, open_penalty, extend_penalty, pospairs1, pospairs2, negpairs1, negpairs2)
 			if fpr < best_fpr:
 				best_fpr = fpr
 				best_gap = open_penalty
 				best_extension = extend_penalty
-
 				print ("Best gap now is " + str(best_gap))
 				print ("Best extend now is "+ str(best_extension))
 
@@ -218,6 +200,13 @@ def all_score_mats(options, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2,
 	
 	for c, choice in enumerate(options):
 		print ("For the %s scoring matrix\n" %names[c])
+		fpr, pos_align_score, neg_align_score = single_scoring(choice, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2)
+		if fpr < best_fpr:
+			best_fpr = fpr
+		print ("Best false positive rate is %s\n" %best_fpr)
+
+
+def single_scoring(choice, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2):
 		pos_align_score = []
 		neg_align_score = []
 		for i in range(0,len(pospairs1)):
@@ -232,23 +221,21 @@ def all_score_mats(options, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2,
 		threshold = pos_align_score[cutoff_index]
 		neg_score_np = np.array(neg_align_score)
 		fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) #False Positive Rate
-		if fpr < best_fpr:
-			best_fpr = fpr
-		print ("Best false positive rate is %s\n" %best_fpr)
+		return fpr, pos_align_score, neg_align_score
 
 
-def make_roc_curve(pos_scores,neg_scores,matrix):
-    #Create a label array, y, with 1's for positives and 0's for negatives, and a scoring array with the scores for each labeled pair.
+def make_roc_curve(pos_scores, neg_scores, matrix, matname):
+    #Create a label array, y, with 1's for positives and 0's for negatives, and a scoring array for each labeled pair.
     y = np.array([1]*len(pos_scores)+[0]*len(neg_scores))
     scores = np.array(pos_scores + neg_scores)
 
-    #Using scikit-learn's roc_curve and auc, calculate the parameters necessary for an ROC curve, and use them to compute the area under the curve
+    #Using scikit-learn, calculate the parameters necessary for an ROC curve, and use them to compute the area under the curve
     fpr,tpr,thresholds = roc_curve(y,scores)
     roc_auc = auc(fpr, tpr)
 
     #plot and save an ROC curve.
     plt.figure()
-    plt.title('Receiver Operating Characteristic, %s' %matrix)
+    plt.title('Receiver Operating Characteristic, %s' %matname)
     plt.plot(fpr,tpr, 'b', label='AUC = %0.2f'% roc_auc)
     plt.legend(loc='lower right')
     plt.plot([0,1],[0,1],'r--')
@@ -256,7 +243,7 @@ def make_roc_curve(pos_scores,neg_scores,matrix):
     plt.ylim([0,1])
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Positive Rate')
-    plt.savefig('roc_%s.png' %matrix)
+    plt.savefig('roc_%s.png' %matname)
 
     return
 
