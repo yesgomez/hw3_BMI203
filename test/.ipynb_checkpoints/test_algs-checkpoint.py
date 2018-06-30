@@ -21,4 +21,4 @@ def test_makeroc():
 	make_roc_curve(pos_align_score, neg_align_score, each, names[i])
 	print ("ROC curve test passed.\n")
 
-def odd_even():
+# def odd_even():

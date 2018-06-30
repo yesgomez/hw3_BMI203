@@ -57,15 +57,13 @@ def read_matrix(filepath):
 
 def align(seq1, seq2, open_penalty, extend_penalty, substitution_matrix):
 	'''
-	Given two sequences to align substitution matrix, gap open penalty and
-	extend penalty, output the alignment score matrix.
+	Given two sequences to align substitution matrix, gap open penalty and extend penalty, output the alignment score matrix.
 
 	'''
 	# Initialization of empty score matrix and state state matrix 
 	mat_score = [[None]*len(seq2) for _ in range(0,len(seq1))]
 	mat_state = [[None]*(len(seq2)+1) for _ in range(0,len(seq1)+1)]
 	mat_score.insert(0,[0] * len(seq2))
-	# Set the first column equal to zero
 	for row in mat_score:
 		row.insert(0,0)
 	# Start scoring matrix by first initializing max score as zero     
@@ -205,10 +203,10 @@ def single_scoring(choice, ga, ext, pospairs1, pospairs2, negpairs1, negpairs2):
 	pos_align_score.sort()
 	neg_align_score.sort()
 	tpr = 0.7 
-	cutoff_index = int((1-tpr)*len(pos_align_score))# find the index that makes it so tpr*lenscores is > threshold
+	cutoff_index = int((1-tpr)*len(pos_align_score))# find the index so that tpr*lenscores is > threshold
 	threshold = pos_align_score[cutoff_index]
 	neg_score_np = np.array(neg_align_score)
-	fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) #False Positive Rate
+	fpr = len(neg_score_np[neg_score_np > threshold])/len(neg_score_np) # False Positive Rate
 	return fpr, pos_align_score, neg_align_score
 
 
