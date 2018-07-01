@@ -1,6 +1,5 @@
 import os, sys
-from .sw import optimize_gap_penalties, import_pairs, temporary
-from .hybrid import init_files, optimize_gap_penalties, all_score_mats, read_fasta, get_sequences, read_matrix, align, get_negpair_seq, get_pospair_seq, make_roc_curve, single_scoring, norm_score
+from .sw import init_files, optimize_gap_penalties, all_score_mats, read_fasta, get_sequences, read_matrix, align, get_negpair_seq, get_pospair_seq, make_roc_curve, single_scoring, norm_score
 
 # Set working directory and sequence folder location
 pwd = os.getcwd()
