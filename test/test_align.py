@@ -1,5 +1,5 @@
 import numpy as np
-from scripts.hybrid import *
+from scripts.sw import *
 
 # generic tests for algorithm logic #
 pwd = os.getcwd()
